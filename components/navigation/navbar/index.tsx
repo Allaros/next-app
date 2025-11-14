@@ -2,17 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import Theme from "./Theme";
+import { Theme } from "./Theme";
 
 const Navbar = () => {
   return (
-    <nav className="flex-between background-light900_dark200 fixed z-50 w-full gap-5 p-6 shadow-light-300 dark:shadow-none sm:px-12">
-      <Link href="/" className="flex items-center gap-1">
+    <nav className="flex-between background-light900_dark200 fixed z-50 w-full gap-5 p-6 dark:shadow-none sm:px-12">
+      <Link href={"/"} className="flex items-center gap-1">
         <Image
-          src="/images/site-logo.svg"
-          width={23}
-          height={23}
-          alt="DevFlow Logo"
+          src={"/images/site-logo.svg"}
+          alt="Site-logo"
+          width={31}
+          height={31}
         />
 
         <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900 max-sm:hidden">
@@ -20,10 +20,10 @@ const Navbar = () => {
         </p>
       </Link>
 
-      <p>Global Search</p>
+      <p>Global search</p>
 
-      <div className="flex-between gap-5">
-        <Theme />
+      <div>
+        <Theme></Theme>
       </div>
     </nav>
   );
