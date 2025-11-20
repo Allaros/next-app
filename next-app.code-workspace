@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../next-app"
+		},
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../../zlatmax"
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "node_modules/typescript/lib"
+	}
+}

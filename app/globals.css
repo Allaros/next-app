@@ -55,6 +55,10 @@ body {
     @apply dark:bg-dark-400 bg-light-900 !important;
   }
 
+  .background-dark500_light900 {
+    @apply dark:bg-dark-500 bg-light-900;
+  }
+
   .text-dark100_light900 {
     @apply text-dark-100 dark:text-light-900 !important;
   }
