@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { toLowerCase } from "zod";
 
-import { auth, signOut } from "@/auth";
+// import { auth, signOut } from "@/auth";
+import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
@@ -110,8 +110,8 @@ const questions = [
     description:
       "I primarily write vanilla JavaScript. What are the main benefits of adopting TypeScript, especially for larger projects, and what's the learning curve like?",
     tags: [
-      { _id: "t17", name: "TypeScript" },
       { _id: "t2", name: "JavaScript" },
+      { _id: "t17", name: "TypeScript" },
       { _id: "t3", name: "Frontend" },
     ],
     author: { _id: "a7", name: "Michael White" },
@@ -176,11 +176,17 @@ interface SearchParams {
 }
 
 const Home = async ({ searchParams }: SearchParams) => {
-  const { query = "" } = await searchParams;
+  const { query = "", filter = "" } = await searchParams;
 
-  const filteredQuestions = questions.filter((question) =>
-    question.title.toLowerCase().includes(query?.toLowerCase())
-  );
+  const filteredQuestions = questions.filter((question) => {
+    const matcheQuery = question.title
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesFilter = filter
+      ? question.tags[0].name.toLowerCase() === filter.toLowerCase()
+      : true;
+    return matcheQuery && matchesFilter;
+  });
 
   return (
     <>
@@ -201,7 +207,7 @@ const Home = async ({ searchParams }: SearchParams) => {
           otherClasses="flex-1"
         />
       </section>
-      HomeFilter
+      <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         {filteredQuestions.map((question) => (
           <h1 key={question._id}>{question.title}</h1>
