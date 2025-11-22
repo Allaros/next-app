@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 // import { auth, signOut } from "@/auth";
+import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
 
-const questions = [
+const questions: Question[] = [
   {
     _id: "1",
     title: "How to start learning React.js from scratch?",
@@ -17,7 +18,12 @@ const questions = [
       { _id: "t2", name: "JavaScript" },
       { _id: "t3", name: "Frontend" },
     ],
-    author: { _id: "a1", name: "John Doe" },
+    author: {
+      _id: "a1",
+      name: "John Doe",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 10,
     answers: 5,
     views: 100,
@@ -33,7 +39,12 @@ const questions = [
       { _id: "t2", name: "JavaScript" },
       { _id: "t4", name: "State Management" },
     ],
-    author: { _id: "a2", name: "Jane Smith" },
+    author: {
+      _id: "a2",
+      name: "Jane Smith",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 25,
     answers: 8,
     views: 250,
@@ -50,7 +61,12 @@ const questions = [
       { _id: "t7", name: "Security" },
       { _id: "t8", name: "Authentication" },
     ],
-    author: { _id: "a3", name: "Peter Jones" },
+    author: {
+      _id: "a3",
+      name: "Peter Jones",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 18,
     answers: 6,
     views: 180,
@@ -66,7 +82,12 @@ const questions = [
       { _id: "t10", name: "SQL" },
       { _id: "t11", name: "NoSQL" },
     ],
-    author: { _id: "a4", name: "Alice Brown" },
+    author: {
+      _id: "a4",
+      name: "Alice Brown",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 30,
     answers: 12,
     views: 320,
@@ -82,7 +103,12 @@ const questions = [
       { _id: "t13", name: "Responsive Design" },
       { _id: "t3", name: "Frontend" },
     ],
-    author: { _id: "a5", name: "Bob Johnson" },
+    author: {
+      _id: "a5",
+      name: "Bob Johnson",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 15,
     answers: 7,
     views: 160,
@@ -98,7 +124,12 @@ const questions = [
       { _id: "t15", name: "Performance" },
       { _id: "t16", name: "Optimization" },
     ],
-    author: { _id: "a6", name: "Emily Davis" },
+    author: {
+      _id: "a6",
+      name: "Emily Davis",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 22,
     answers: 9,
     views: 210,
@@ -114,7 +145,12 @@ const questions = [
       { _id: "t17", name: "TypeScript" },
       { _id: "t3", name: "Frontend" },
     ],
-    author: { _id: "a7", name: "Michael White" },
+    author: {
+      _id: "a7",
+      name: "Michael White",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 40,
     answers: 15,
     views: 450,
@@ -130,7 +166,12 @@ const questions = [
       { _id: "t18", name: "Testing" },
       { _id: "t2", name: "JavaScript" },
     ],
-    author: { _id: "a8", name: "Sarah Green" },
+    author: {
+      _id: "a8",
+      name: "Sarah Green",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 19,
     answers: 5,
     views: 175,
@@ -146,7 +187,12 @@ const questions = [
       { _id: "t20", name: "REST" },
       { _id: "t5", name: "Node.js" },
     ],
-    author: { _id: "a9", name: "David Lee" },
+    author: {
+      _id: "a9",
+      name: "David Lee",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 28,
     answers: 10,
     views: 290,
@@ -163,7 +209,12 @@ const questions = [
       { _id: "t22", name: "Algorithms" },
       { _id: "t2", name: "JavaScript" },
     ],
-    author: { _id: "a10", name: "Jessica Kim" },
+    author: {
+      _id: "a10",
+      name: "Jessica Kim",
+      image:
+        "https://www.svgrepo.com/show/382109/male-avatar-boy-face-man-user-7.svg",
+    },
     upvotes: 35,
     answers: 11,
     views: 380,
@@ -210,7 +261,7 @@ const Home = async ({ searchParams }: SearchParams) => {
       <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         {filteredQuestions.map((question) => (
-          <h1 key={question._id}>{question.title}</h1>
+          <QuestionCard key={question._id} question={question} />
         ))}
       </div>
     </>
