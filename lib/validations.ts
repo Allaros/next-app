@@ -4,6 +4,27 @@ const emailRegex =
   /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
 
 export const SignInSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .regex(emailRegex, { message: "Please provide a valid email addres" }),
+
+  password: z
+    .string()
+    .min(6, { message: "The password must be longer than 6 symbols" })
+    .max(100, { message: "Password cannot exceed 100 symbols" })
+    .regex(/[A-Z]/, {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .regex(/[a-z]/, {
+      message: "Password must contain at least one lowercase letter",
+    })
+    .regex(/[0-9]/, { message: "Pasword must contain at least one number" })
+    .regex(/[^a-zA-Z0-9]/, {
+      message: "Password must contain at least one special symbol",
+    }),
+});
+export const SignUpSchema = z.object({
   username: z
     .string()
     .min(3, { message: "Username must be at least 3 characters long." })
@@ -54,4 +75,20 @@ export const AskQuestionSchema = z.object({
     )
     .min(1, { message: "At least one tag is required." })
     .max(3, { message: "Connot add more than 3 tags." }),
+});
+
+export const UserSchema = z.object({
+  name: z.string().min(1, { message: "Name is required." }),
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long." }),
+  email: z.string().email({ message: "Please provide a valid email address." }),
+  bio: z.string().optional(),
+  image: z.string().url({ message: "Please provide a valid URL." }).optional(),
+  location: z.string().optional(),
+  portfolio: z
+    .string()
+    .url({ message: "Please provide a valid URL." })
+    .optional(),
+  reputation: z.number().optional(),
 });
