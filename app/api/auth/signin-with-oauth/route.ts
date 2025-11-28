@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
-import { success } from "zod";
 
 import Account from "@/database/account.model";
 import User from "@/database/user.model";

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { SessionProvider } from "next-auth/react";
 import React from "react";
 
 import "./globals.css";
 import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/toaster";
+import AuthProvider from "@/context/AuthProvider";
 import ThemeProvider from "@/context/Theme";
 
 const inter = localFont({
@@ -45,7 +45,7 @@ export default async function Layout({
           href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
         />
       </head>
-      <SessionProvider session={session}>
+      <AuthProvider session={session}>
         <body
           className={`${inter.className} ${spaceGrotesk.variable} antialiased`}
         >
@@ -59,7 +59,7 @@ export default async function Layout({
           </ThemeProvider>
           <Toaster />
         </body>
-      </SessionProvider>
+      </AuthProvider>
     </html>
   );
 }
