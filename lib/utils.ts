@@ -15,8 +15,10 @@ export const getDeviconClassName = (techName: string) => {
     : "devicon-devicon-plain";
 };
 
-export const getTimeStamp = (date: Date) => {
+export const getTimeStamp = (createdAt: Date) => {
+  const date = new Date(createdAt);
   const now = new Date();
+
   const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   const units = [
@@ -31,7 +33,6 @@ export const getTimeStamp = (date: Date) => {
 
   for (const unit of units) {
     const interval = Math.floor(secondsAgo / unit.seconds);
-
     if (interval >= 1) {
       return `${interval} ${unit.label}${interval > 1 ? "s" : ""} ago`;
     }

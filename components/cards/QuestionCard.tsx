@@ -14,6 +14,7 @@ interface QuestionCardProps {
 const QuestionCard = ({
   question: { _id, title, tags, author, createdAt, upvotes, answers, views },
 }: QuestionCardProps) => {
+  console.log(createdAt);
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
