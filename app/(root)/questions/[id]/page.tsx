@@ -11,6 +11,8 @@ import ROUTES from "@/constants/routes";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import AnswerForm from "@/components/forms/AnswerForm";
+import { getAnswers } from "@/lib/actions/answer.action";
+import AllAnswers from "@/components/answers/AllAnswers";
 
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
@@ -24,6 +26,17 @@ const QuestionDetails = async ({ params }: RouteParams) => {
   });
 
   if (!success || !question) return redirect("/404");
+
+  const {
+    success: areAnswersLoaded,
+    data: answersResult,
+    error: answersError,
+  } = await getAnswers({
+    questionId: id,
+    page: 1,
+    pageSize: 10,
+    filter: "latest",
+  });
 
   const { author, title, createdAt, answers, views, tags, content } = question;
 
@@ -93,7 +106,15 @@ const QuestionDetails = async ({ params }: RouteParams) => {
       </div>
 
       <section className="my-5">
-        <AnswerForm />
+        <AllAnswers
+          data={answersResult?.answers}
+          success={areAnswersLoaded}
+          error={answersError}
+          totalAnswers={answersResult?.totalAnswers || 0}
+        />
+      </section>
+      <section className="my-5">
+        <AnswerForm questionId={question._id} />
       </section>
     </>
   );
