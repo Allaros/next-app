@@ -39,7 +39,7 @@ interface QuestionFormProps {
 const QuestionForm = ({ question, isEdit = false }: QuestionFormProps) => {
   const router = useRouter();
 
-  const editoRef = useRef<MDXEditorMethods>(null);
+  const editorRef = useRef<MDXEditorMethods>(null);
 
   const [isPending, startTransition] = useTransition();
 
@@ -68,7 +68,7 @@ const QuestionForm = ({ question, isEdit = false }: QuestionFormProps) => {
             description: "Question updated successfully",
           });
           if (result.data) {
-            router.push(ROUTES.QUESTION(result.data._id));
+            router.push(ROUTES.QUESTION(result.data._id.toString()));
           } else {
             toast({
               title: `Error ${result.status}`,
@@ -179,7 +179,7 @@ const QuestionForm = ({ question, isEdit = false }: QuestionFormProps) => {
               </FormLabel>
               <FormControl>
                 <Editor
-                  editorRef={editoRef}
+                  editorRef={editorRef}
                   value={field.value}
                   fieldChange={field.onChange}
                 />
