@@ -18,6 +18,7 @@ interface Question {
   author: Author;
   createdAt: Date;
   upvotes: number;
+  downvotes: number;
   answers: number;
   views: number;
 }
@@ -57,4 +58,6 @@ interface Answer {
   author: Author;
   content: string;
   createdAt: Date;
+  upvotes: number;
+  downvotes: number;
 }

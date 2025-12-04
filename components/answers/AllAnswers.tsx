@@ -30,6 +30,8 @@ const AllAnswers = ({ data, success, error, totalAnswers }: AnswersProps) => {
               author={answer.author}
               content={answer.content}
               createdAt={answer.createdAt}
+              downvotes={answer.downvotes}
+              upvotes={answer.upvotes}
             />
           ))
         }
