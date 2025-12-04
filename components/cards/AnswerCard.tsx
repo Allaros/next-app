@@ -53,7 +53,7 @@ const AnswerCard = ({
                 upvotes={upvotes}
                 downvotes={downvotes}
                 targetType="answer"
-                targetId={_id}
+                targetId={_id.toString()}
                 hasVotedPromise={hasVotedPromise}
               />
             </Suspense>
