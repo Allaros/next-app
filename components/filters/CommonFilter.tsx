@@ -1,36 +1,34 @@
 "use client";
 
-import { SelectItem } from "@radix-ui/react-select";
-import { useSearchParams, useRouter } from "next/navigation";
-import React from "react";
-
-import { formUrlQuery } from "@/lib/url";
-import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Select,
-  SelectContent,
-  SelectGroup,
+  SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+  SelectContent,
+  SelectGroup,
+} from "@/components/ui/select";
+import { formUrlQuery } from "@/lib/url";
+import { cn } from "@/lib/utils";
 
 interface Filter {
   name: string;
   value: string;
 }
 
-interface FilterProps {
+interface Props {
   filters: Filter[];
-  otherClasses: string;
-  containerClasses: string;
+  otherClasses?: string;
+  containerClasses?: string;
 }
 
 const CommonFilter = ({
   filters,
   otherClasses = "",
   containerClasses = "",
-}: FilterProps) => {
+}: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -66,9 +64,9 @@ const CommonFilter = ({
 
         <SelectContent>
           <SelectGroup>
-            {filters.map((filter) => (
-              <SelectItem key={filter.value} value={filter.value}>
-                {filter.name}
+            {filters.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.name}
               </SelectItem>
             ))}
           </SelectGroup>

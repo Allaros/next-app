@@ -1,33 +1,43 @@
+import React from "react";
+
 import UserCard from "@/components/cards/UserCard";
 import DataRenderer from "@/components/DataRenderer";
+import CommonFilter from "@/components/filters/CommonFilter";
+import Pagination from "@/components/pagination/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
+import { UserFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routes";
 import { EMPTY_USERS } from "@/constants/states";
 import { getUsers } from "@/lib/actions/user.action";
-import React from "react";
 
 const Community = async ({ searchParams }: RouteParams) => {
   const { page, pageSize, query, filter } = await searchParams;
 
   const { success, data, error } = await getUsers({
-    page: Number(page) || 1,
+    page: Number(page) > 0 ? Number(page) : 1,
     pageSize: Number(pageSize) || 10,
     query,
     filter,
   });
 
   const users: User[] = data?.users || [];
+  const isNext = data?.isNext || false;
 
   return (
     <div>
       <h1 className="h1-bold text-dark100_light900 ">All users</h1>
-      <div className="mt-11">
+      <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
           route={ROUTES.COMMUNITY}
           iconPosition="left"
           imgSrc="/icons/search.svg"
           placeholder="Search users..."
           otherClasses="flex-1"
+        />
+
+        <CommonFilter
+          filters={UserFilters}
+          otherClasses="min-h-[56px] sm:min-w-[170px]"
         />
       </div>
 
@@ -44,6 +54,7 @@ const Community = async ({ searchParams }: RouteParams) => {
           </div>
         )}
       />
+      <Pagination page={page} isNext={isNext || false} />
     </div>
   );
 };

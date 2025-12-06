@@ -3,24 +3,24 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import React, { Suspense } from "react";
 
+import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
 import Preview from "@/components/editor/Preview";
-import Metric from "@/components/Metric";
-import UserAvatar from "@/components/UserAvatar";
-import ROUTES from "@/constants/routes";
-import { getQuestion, incrementViews } from "@/lib/actions/question.action";
-import { formatNumber, getTimeStamp } from "@/lib/utils";
 import AnswerForm from "@/components/forms/AnswerForm";
-import { getAnswers } from "@/lib/actions/answer.action";
-import AllAnswers from "@/components/answers/AllAnswers";
-import Votes from "@/components/votes/Votes";
-import { hasVoted } from "@/lib/actions/vote.action";
+import Metric from "@/components/Metric";
 import SaveQuestion from "@/components/questions/SaveQuestion";
+import UserAvatar from "@/components/UserAvatar";
+import Votes from "@/components/votes/Votes";
+import ROUTES from "@/constants/routes";
+import { getAnswers } from "@/lib/actions/answer.action";
 import { hasSavedQuestion } from "@/lib/actions/collection.action";
+import { getQuestion, incrementViews } from "@/lib/actions/question.action";
+import { hasVoted } from "@/lib/actions/vote.action";
+import { formatNumber, getTimeStamp } from "@/lib/utils";
 
-const QuestionDetails = async ({ params }: RouteParams) => {
+const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
-
+  const { page, pageSize, filter } = await searchParams;
   await incrementViews({ questionId: id });
 
   const { success, data: question } = await getQuestion({ questionId: id });
@@ -37,9 +37,9 @@ const QuestionDetails = async ({ params }: RouteParams) => {
     error: answersError,
   } = await getAnswers({
     questionId: id,
-    page: 1,
-    pageSize: 10,
-    filter: "latest",
+    page: Number(page) > 0 ? Number(page) : 1,
+    pageSize: Number(pageSize) || 10,
+    filter,
   });
 
   const hasVotedPromise = hasVoted({
@@ -72,7 +72,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
             </Link>
           </div>
 
-          <div className="flex justify-end items-center gap-4">
+          <div className="flex items-center justify-end gap-4">
             <Suspense fallback={<div>Loading...</div>}>
               <Votes
                 upvotes={question.upvotes}
@@ -121,7 +121,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
 
       <Preview content={content} />
 
-      <div className="mt-8 flex-wrap gap-2">
+      <div className="mt-8 flex gap-2 max-sm:flex-wrap">
         {tags.map((tag: Tag) => (
           <TagCard
             key={tag._id}
@@ -134,6 +134,8 @@ const QuestionDetails = async ({ params }: RouteParams) => {
 
       <section className="my-5">
         <AllAnswers
+          page={page}
+          isNext={answersResult?.isNext}
           data={answersResult?.answers}
           success={areAnswersLoaded}
           error={answersError}
