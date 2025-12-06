@@ -1,12 +1,6 @@
-import { error } from "console";
-import { title } from "process";
-
-import image from "next/image";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { render } from "react-dom";
-import { success } from "zod";
 
 import { DEFAULT_EMPTY, DEFAULT_ERROR } from "@/constants/states";
 
@@ -104,7 +98,7 @@ const DataRenderer = <T,>({
             ? JSON.stringify(error.details, null, 2)
             : DEFAULT_ERROR.message
         }
-        button={DEFAULT_ERROR.button}
+        button={empty.button}
       />
     );
   }
