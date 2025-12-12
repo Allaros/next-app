@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 import { toast } from "@/hooks/use-toast";
+import { deleteAnswerQuestion } from "@/lib/actions/user.action";
 
 import {
   AlertDialogHeader,
@@ -30,17 +31,22 @@ const EditDeleteAction = ({ type, itemId }: EditDeleteActionProps) => {
     router.push(`/questions/${itemId}/edit`);
   };
   const handleDelete = async () => {
-    if (type === "question") {
-      toast({
-        title: "Question deleted",
-        description: "Your question has been deleted successfully",
-      });
-    } else {
-      toast({
-        title: "Answer deleted",
-        description: "Your answer has been deleted successfully",
+    const { success, error } = await deleteAnswerQuestion({
+      targetId: itemId,
+      type,
+    });
+
+    if (!success) {
+      return toast({
+        title: "Something went wrong",
+        description: error?.message,
       });
     }
+
+    toast({
+      title: `${type === "question" ? "Question" : "Answer"} deleted successfully`,
+      description: `Your ${type} has been removed from database`,
+    });
   };
 
   return (

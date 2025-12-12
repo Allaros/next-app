@@ -1,12 +1,15 @@
 "use server";
 
-import { QueryFilter, Types, PipelineStage } from "mongoose";
+import mongoose, { QueryFilter, Types, PipelineStage } from "mongoose";
+import { revalidatePath } from "next/cache";
 
+import ROUTES from "@/constants/routes";
 import { Answer, Question, User } from "@/database";
 
 import action from "../handlers/action";
 import { handleError } from "../handlers/error";
 import {
+  DeleteAnswerQuestionSchema,
   GetUserQuestionsSchema,
   GetUsersAnswersSchema,
   GetUserSchema,
@@ -251,5 +254,66 @@ export async function getUserTopTags(
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function deleteAnswerQuestion(
+  params: DeleteAnswerQuestionParams
+): Promise<ActionResponse<{ target: Question | Answer }>> {
+  const validationResult = await action({
+    params,
+    schema: DeleteAnswerQuestionSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { type, targetId } = params;
+  const userId = validationResult.session?.user?.id;
+
+  if (!userId) throw new Error("Unauthorized");
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const Model = type === "question" ? Question : Answer;
+
+    const target = await Model.findById(targetId);
+
+    if (!target) throw new Error("Target undefined");
+
+    if (target.author._id.toString() !== userId)
+      throw new Error("Access denied");
+
+    await Model.findByIdAndDelete(targetId).session(session);
+
+    if (type === "answer") {
+      await Question.findByIdAndUpdate(
+        target.question,
+        {
+          $inc: { answers: -1 },
+        },
+        { new: true, session }
+      );
+    }
+
+    revalidatePath(ROUTES.PROFILE(userId));
+
+    await session.commitTransaction();
+
+    return {
+      success: true,
+      data: {
+        target: JSON.parse(JSON.stringify(target)),
+      },
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    return handleError(error) as ErrorResponse;
+  } finally {
+    session.endSession();
   }
 }
