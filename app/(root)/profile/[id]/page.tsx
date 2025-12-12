@@ -3,15 +3,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
+import AnswerCard from "@/components/cards/AnswerCard";
+import QuestionCard from "@/components/cards/QuestionCard";
+import DataRenderer from "@/components/DataRenderer";
+import Pagination from "@/components/pagination/Pagination";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileLink from "@/components/user/ProfileLink";
 import Stats from "@/components/user/Stats";
 import UserAvatar from "@/components/UserAvatar";
-import { getUser } from "@/lib/actions/user.action";
+import { EMPTY_ANSWERS, EMPTY_QUESTION } from "@/constants/states";
+import {
+  getUser,
+  getUserAnswers,
+  getUserQuestions,
+} from "@/lib/actions/user.action";
 
-const Profile = async ({ params }: RouteParams) => {
+const Profile = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
+  const { page, pageSize } = await searchParams;
 
   if (!id) notFound();
 
@@ -29,6 +39,30 @@ const Profile = async ({ params }: RouteParams) => {
     );
 
   const { user, totalQuestions, totalAnswers } = data!;
+
+  const {
+    success: userQuestionsSuccess,
+    data: userQuestions,
+    error: userQuestionsError,
+  } = await getUserQuestions({
+    userId: id,
+    page: Number(page) > 0 ? Number(page) : 1,
+    pageSize: Number(pageSize) || 5,
+  });
+
+  const {
+    success: userAnswersSuccess,
+    data: userAnswers,
+    error: userAnswersError,
+  } = await getUserAnswers({
+    userId: id,
+    page: Number(page) > 0 ? Number(page) : 1,
+    pageSize: Number(pageSize) || 5,
+  });
+
+  const { questions, isNext: hasMoreQuestions } = userQuestions!;
+  const { answers, isNext: hasMoreAnswers } = userAnswers!;
+
   const {
     _id,
     name,
@@ -117,10 +151,42 @@ const Profile = async ({ params }: RouteParams) => {
             value="top-posts"
             className="mt-5 flex w-full flex-col gap-6"
           >
-            List of posts
+            <DataRenderer
+              success={userQuestionsSuccess}
+              error={userQuestionsError}
+              data={questions}
+              empty={EMPTY_QUESTION}
+              render={(questions) => (
+                <div className="mt-10 flex w-full flex-col gap-6">
+                  {questions.map((question) => (
+                    <QuestionCard key={question._id} question={question} />
+                  ))}
+                </div>
+              )}
+            />
+            <Pagination page={page} isNext={hasMoreQuestions} />
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
-            List of answers
+            <DataRenderer
+              success={userAnswersSuccess}
+              error={userAnswersError}
+              data={answers}
+              empty={EMPTY_ANSWERS}
+              render={(answers) => (
+                <div className="mt-10 flex w-full flex-col gap-6">
+                  {answers.map((answer) => (
+                    <AnswerCard
+                      key={answer._id}
+                      {...answer}
+                      content={answer.content.slice(0, 70)}
+                      containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
+                      showReadMore
+                    />
+                  ))}
+                </div>
+              )}
+            />
+            <Pagination page={page} isNext={hasMoreAnswers} />
           </TabsContent>
         </Tabs>
 
