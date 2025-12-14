@@ -2,12 +2,14 @@
 
 import mongoose, { QueryFilter, Types, PipelineStage } from "mongoose";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import ROUTES from "@/constants/routes";
 import { Answer, Question, User } from "@/database";
 
 import action from "../handlers/action";
 import { handleError } from "../handlers/error";
+import { assignBadges } from "../utils";
 import {
   DeleteAnswerQuestionSchema,
   GetUserQuestionsSchema,
@@ -16,6 +18,7 @@ import {
   GetUserTagsSchema,
   PaginatedSearchParamsSchema,
 } from "../validations";
+import { createInteraction } from "./interaction.action";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -85,8 +88,6 @@ export async function getUsers(
 export async function getUser(params: GetUserParams): Promise<
   ActionResponse<{
     user: User;
-    totalQuestions: number;
-    totalAnswers: number;
   }>
 > {
   const validationResult = await action({
@@ -105,15 +106,77 @@ export async function getUser(params: GetUserParams): Promise<
 
     if (!user) throw new Error("User not found");
 
-    const totalQuestions = await Question.countDocuments({ author: userId });
-    const totalAnswers = await Answer.countDocuments({ author: userId });
-
     return {
       success: true,
       data: {
         user: JSON.parse(JSON.stringify(user)),
-        totalQuestions,
-        totalAnswers,
+      },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserStats(params: GetUserParams): Promise<
+  ActionResponse<{
+    totalQuestions: number;
+    totalAnswers: number;
+    badges: Badges;
+  }>
+> {
+  const validationResult = await action({
+    params,
+    schema: GetUserSchema,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId } = params;
+
+  try {
+    const [questionStats] = await Question.aggregate([
+      { $match: { author: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          upvotes: { $sum: "$upvotes" },
+          views: { $sum: "$views" },
+        },
+      },
+    ]);
+
+    const [answerStats] = await Answer.aggregate([
+      { $match: { author: new Types.ObjectId(userId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          upvotes: { $sum: "$upvotes" },
+        },
+      },
+    ]);
+
+    const badges = assignBadges({
+      criteria: [
+        { type: "ANSWER_COUNT", count: answerStats.count },
+        { type: "QUESTION_COUNT", count: questionStats.count },
+        {
+          type: "QUESTION_UPVOTES",
+          count: questionStats.upvotes + answerStats.upvotes,
+        },
+        { type: "TOTAL_VIEWS", count: questionStats.views },
+      ],
+    });
+
+    return {
+      success: true,
+      data: {
+        totalAnswers: answerStats.count,
+        totalQuestions: questionStats.count,
+        badges,
       },
     };
   } catch (error) {
@@ -299,6 +362,15 @@ export async function deleteAnswerQuestion(
         { new: true, session }
       );
     }
+
+    after(async () => {
+      await createInteraction({
+        action: "delete",
+        actionId: targetId,
+        actionTarget: type,
+        authorId: userId as string,
+      });
+    });
 
     revalidatePath(ROUTES.PROFILE(userId));
 

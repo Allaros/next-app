@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { InteractionActionEnums } from "@/constants";
 const emailRegex =
   /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
 
@@ -216,4 +217,11 @@ export const GetUserTagsSchema = z.object({
 export const DeleteAnswerQuestionSchema = z.object({
   type: z.enum(["question", "answer"]),
   targetId: z.string().min(1, { message: "Target ID is required." }),
+});
+
+export const CreateInteractionSchema = z.object({
+  action: z.enum(InteractionActionEnums),
+  actionTarget: z.enum(["question", "answer"]),
+  actionId: z.string().min(1),
+  authorId: z.string().min(1),
 });

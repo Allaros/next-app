@@ -2,6 +2,7 @@
 
 import mongoose, { ClientSession } from "mongoose";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import ROUTES from "@/constants/routes";
 import { Answer, Question, Vote } from "@/database";
@@ -13,6 +14,7 @@ import {
   HasVotedSchema,
   UpdateVoteCountSchema,
 } from "../validations";
+import { createInteraction } from "./interaction.action";
 
 export async function updateVoteCount(
   params: UpdateVoteCountParams,
@@ -119,6 +121,15 @@ export async function createVote(
         session
       );
     }
+
+    after(async () => {
+      await createInteraction({
+        action: voteType,
+        actionId: targetId,
+        actionTarget: targetType,
+        authorId: userId as string,
+      });
+    });
 
     await session.commitTransaction();
     session.endSession();
