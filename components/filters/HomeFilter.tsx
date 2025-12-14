@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 const filters = [
-  // { name: "React", value: "react" },
-  // { name: "javascript", value: "javascript" },
   { name: "Newest", value: "newest" },
   { name: "Popular", value: "popular" },
   { name: "Unanswered", value: "unanswered" },
