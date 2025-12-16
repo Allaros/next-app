@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 
 import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
@@ -51,13 +51,19 @@ const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   const { page, pageSize, filter } = await searchParams;
   await incrementViews({ questionId: id });
 
-  const { success, data: question } = await getQuestion({ questionId: id });
+  const {
+    success,
+    data: question,
+    error,
+  } = await getQuestion({ questionId: id });
 
   after(async () => {
     await incrementViews({ questionId: id });
   });
-
-  if (!success || !question) return redirect("/404");
+  if (!success) {
+    throw new Error(error?.message);
+  }
+  if (!question) return redirect("/404");
 
   const {
     success: areAnswersLoaded,
