@@ -6,7 +6,7 @@ import { formatNumber } from "@/lib/utils";
 interface StatsProps {
   totalAnswers: number;
   totalQuestions: number;
-  badges: BadgeCounts;
+  badges: Badges;
 }
 
 interface StatsCardProps {

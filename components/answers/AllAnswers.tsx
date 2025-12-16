@@ -50,6 +50,7 @@ const AllAnswers = ({
               createdAt={answer.createdAt}
               downvotes={answer.downvotes}
               upvotes={answer.upvotes}
+              question={answer.question}
             />
           ))
         }
