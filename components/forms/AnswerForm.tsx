@@ -1,7 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { MDXEditorMethods } from "@mdxeditor/editor";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import dynamic from "next/dynamic";
+import { useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -13,15 +16,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-
-import { AnswerSchema } from "@/lib/validations";
-import { useRef, useState, useTransition } from "react";
-import dynamic from "next/dynamic";
-import { MDXEditorMethods } from "@mdxeditor/editor";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import Image from "next/image";
-import { createAnswer } from "@/lib/actions/answer.action";
 import { toast } from "@/hooks/use-toast";
+import { createAnswer } from "@/lib/actions/answer.action";
+import { AnswerSchema } from "@/lib/validations";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
@@ -79,7 +76,7 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
             name="content"
             render={({ field }) => (
               <FormItem className="flex w-full flex-col gap-3 ">
-                <FormControl className="mt-3.5 bg-light-700 dark:bg-dark-200">
+                <FormControl>
                   <Editor
                     value={field.value}
                     editorRef={editorRef}

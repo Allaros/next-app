@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileLink from "@/components/user/ProfileLink";
 import Stats from "@/components/user/Stats";
 import UserAvatar from "@/components/UserAvatar";
-import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
+import { EMPTY_ANSWERS, EMPTY_TAGS } from "@/constants/states";
 import {
   getUser,
   getUserAnswers,
@@ -105,6 +105,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
             <p className="paragraph-regular text-dark200_light800">
               @{username}
             </p>
+            <p className="paragraph-regular text-dark200_light800">
+              Reputation: {reputation}
+            </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
               {portfolio && (
@@ -119,8 +122,10 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               )}
               <ProfileLink
                 imgUrl={"/icons/calendar.svg"}
-                title={dayjs(createdAt).format("MMMM YYYY")}
+                title={`Joined at ${dayjs(createdAt).format("MMMM YYYY")}`}
               />
+
+              <ProfileLink imgUrl={"/icons/link.svg"} title={email} />
             </div>
 
             {bio && (
@@ -170,7 +175,11 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               success={userQuestionsSuccess}
               error={userQuestionsError}
               data={questions}
-              empty={EMPTY_QUESTION}
+              empty={{
+                title: "Ahh, no questions yet!",
+                message:
+                  "The question board is empty. Maybe it's waiting for you to ask something.",
+              }}
               render={(questions) => (
                 <div className="mt-10 flex w-full flex-col gap-10">
                   {questions.map((question) => (
