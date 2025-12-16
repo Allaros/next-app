@@ -33,8 +33,10 @@
           "caseInsensitive": true
         }
       }
-    ]
+    ],
+    "comma-dangle": "off"
   },
+  "ignorePatterns": ["components/ui/**"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],

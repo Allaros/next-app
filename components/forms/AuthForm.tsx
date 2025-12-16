@@ -3,13 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  DefaultValues,
-  FieldValues,
-  Path,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
+import z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,50 +18,67 @@ import {
 import { Input } from "@/components/ui/input";
 import ROUTES from "@/constants/routes";
 import { toast } from "@/hooks/use-toast";
+import {
+  signInWithCredentials,
+  signUpWithCredentials,
+} from "@/lib/actions/auth.action";
+import { SignInSchema, SignUpSchema } from "@/lib/validations";
 
-interface AuthFormProps<T extends FieldValues> {
-  schema: T;
-  defaultValues: T;
-  onSubmit: (data: T) => Promise<ActionResponse>;
+// Маппинг схем по типу формы
+const schemas = {
+  SIGN_IN: SignInSchema,
+  SIGN_UP: SignUpSchema,
+};
+
+// Дефолтные значения для каждой схемы
+const defaultValuesMap = {
+  SIGN_IN: { email: "", password: "" },
+  SIGN_UP: { name: "", username: "", email: "", password: "" },
+};
+
+interface AuthFormProps {
   formType: "SIGN_IN" | "SIGN_UP";
 }
 
-const AuthForm = <T extends FieldValues>({
-  schema,
-  defaultValues,
-  formType,
-  onSubmit,
-}: AuthFormProps<T>) => {
+const AuthForm = ({ formType }: AuthFormProps) => {
   const router = useRouter();
+  const schema = schemas[formType];
+  const defaultValues = defaultValuesMap[formType];
 
-  const form = useForm<T>({
+  const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues as DefaultValues<T>,
+    defaultValues,
   });
 
-  const handleSubmit: SubmitHandler<T> = async (data) => {
-    const result = (await onSubmit(data)) as ActionResponse;
-
-    if (result?.success) {
-      toast({
-        title: "Success",
-        description:
-          formType === "SIGN_IN"
-            ? "Signed in successfuly"
-            : "Signed up successfully",
-      });
-
-      router.push(ROUTES.HOME);
+  const handleSubmit = async (data: z.infer<typeof schema>) => {
+    if (formType === "SIGN_IN") {
+      const signInData = data as z.infer<typeof SignInSchema>;
+      const result = await signInWithCredentials(signInData);
+      if (result?.success) {
+        toast({ title: "Success", description: "Signed in successfully" });
+        router.push(ROUTES.HOME);
+      } else {
+        toast({
+          title: `Error ${result.status}`,
+          description: result?.error?.message,
+          variant: "destructive",
+        });
+      }
     } else {
-      toast({
-        title: `Error ${result.status}`,
-        description: result?.error.message,
-        variant: "destructive",
-      });
+      const signUpData = data as z.infer<typeof SignUpSchema>;
+      const result = await signUpWithCredentials(signUpData);
+      if (result?.success) {
+        toast({ title: "Success", description: "Signed up successfully" });
+        router.push(ROUTES.HOME);
+      } else {
+        toast({
+          title: `Error ${result.status}`,
+          description: result?.error?.message,
+          variant: "destructive",
+        });
+      }
     }
   };
-
-  const buttonText = formType === "SIGN_IN" ? "Sign In" : "Sign Up";
 
   return (
     <Form {...form}>
@@ -78,7 +90,7 @@ const AuthForm = <T extends FieldValues>({
           <FormField
             key={field}
             control={form.control}
-            name={field as Path<T>}
+            name={field as keyof typeof defaultValues}
             render={({ field }) => (
               <FormItem className="flex w-full flex-col gap-2.5">
                 <FormLabel className="paragraph-medium text-dark400_light700">
@@ -105,10 +117,12 @@ const AuthForm = <T extends FieldValues>({
           className="primary-gradient paragraph-medium min-h-12 w-full rounded-2 px-4 py-3 font-inter !text-light-900"
         >
           {form.formState.isSubmitting
-            ? buttonText === "Sign In"
-              ? "Signin In..."
+            ? formType === "SIGN_IN"
+              ? "Signing In..."
               : "Signing Up..."
-            : buttonText}
+            : formType === "SIGN_IN"
+              ? "Sign In"
+              : "Sign Up"}
         </Button>
 
         {formType === "SIGN_IN" ? (
